@@ -1,10 +1,3 @@
-"""
-icaps_figures.py
-
-Creates publication-quality figures sized for ICAPS two-column (6.69 x 5.2 inches)
-Accepts trajectories, inside rectangles, outside rectangles, and an additional
-mask rectangle (a second independent outside highlight).
-"""
 
 from pathlib import Path
 from typing import List, Tuple, Optional, Union, Dict
@@ -21,7 +14,6 @@ except Exception:
 
 ArrayLike = Union[np.ndarray, 'torch.Tensor']
 
-# ICAPS figure defaults
 ICAPS_WIDTH_IN = 6.69
 ICAPS_HEIGHT_IN = 5.20
 ICAPS_DPI = 300
@@ -29,7 +21,6 @@ ICAPS_DPI = 300
 DEFAULT_TRAJ_CMAP = "tab10"
 REGION_FILL_ALPHA = 0.28
 REGION_EDGE_WIDTH = 1.2
-# Drastically reduced alpha for trajectories (was 0.75)
 TRAJ_LINE_ALPHA = 0.3
 
 mpl.rcParams.update({
@@ -50,7 +41,7 @@ def _to_numpy(arr: ArrayLike) -> np.ndarray:
         arr = arr.detach().cpu().numpy()
     arr = np.asarray(arr)
     if arr.ndim > 2:
-        arr = arr.reshape(arr.shape[0], -1)  # flatten extra dims
+        arr = arr.reshape(arr.shape[0], -1) 
     if arr.ndim != 2 or arr.shape[1] != 2:
         raise ValueError(f"Array must be 2-D with shape (N,2), got {arr.shape}")
     return arr.astype(np.float64)
@@ -92,8 +83,6 @@ def plot_icaps_figure(
     out_dir = _ensure_results_dir(results_dir)
 
     rects_all = inside_rectangles + outside_rectangles + mask_rectangles
-
-    # Automatic domain detection with margin
     if domain is None and rects_all:
         xs = np.concatenate([t[:, 0] for t in trajs] +
                             [np.array([r['xmin'], r['xmin'] + r['width']]) for r in rects_all])
@@ -115,8 +104,6 @@ def plot_icaps_figure(
         ax.set_title(title)
     if show_grid:
         ax.grid(True, linestyle="--", linewidth=0.4, alpha=0.6)
-
-    # OUTSIDE rectangles (global overlay)
     if outside_rectangles:
         overlay = patches.Rectangle(
             (xmin, ymin), xmax - xmin, ymax - ymin,
@@ -127,14 +114,11 @@ def plot_icaps_figure(
         for r in outside_rectangles:
             rx, ry, rw, rh = r["xmin"], r["ymin"], r["width"], r["height"]
             color = r.get("color", "#FFCDD2")
-            # punch holes
             hole = patches.Rectangle((rx, ry), rw, rh, facecolor="white", edgecolor="none", zorder=2)
             ax.add_patch(hole)
             border = patches.Rectangle((rx, ry), rw, rh, facecolor="none",
                                        edgecolor=color, linewidth=REGION_EDGE_WIDTH, zorder=3)
             ax.add_patch(border)
-
-    # MASK rectangles (optional second overlay)
     if mask_rectangles:
         overlay2 = patches.Rectangle((xmin, ymin), xmax - xmin, ymax - ymin,
                                      facecolor="blue", alpha=0.10, zorder=1.5)
@@ -148,7 +132,6 @@ def plot_icaps_figure(
                                         edgecolor=color, linewidth=REGION_EDGE_WIDTH, zorder=3.5)
             ax.add_patch(border2)
 
-    # INSIDE rectangles
     for r in inside_rectangles:
         rx, ry, rw, rh = r["xmin"], r["ymin"], r["width"], r["height"]
         color = r.get("color", "#E8F5E9")
@@ -157,25 +140,21 @@ def plot_icaps_figure(
                                  alpha=alpha, linewidth=REGION_EDGE_WIDTH, zorder=4)
         ax.add_patch(rect)
 
-    # Trajectories
     n_traj = len(trajs)
     if traj_colors is None:
         cmap = plt.get_cmap(DEFAULT_TRAJ_CMAP)
         traj_colors = [cmap(i % cmap.N) for i in range(n_traj)]
 
     for i, t in enumerate(trajs):
-        # Apply reduced alpha to the lines
         ax.plot(t[:, 0], t[:, 1], color=traj_colors[i], linewidth=1.6,
                 label=(labels[i] if labels and i < len(labels) else None), 
                 zorder=5, alpha=traj_alpha)
         
-        # Keep start/end points more visible (0.9) so they don't disappear
         ax.scatter(t[0, 0], t[0, 1], s=20, marker="o", edgecolors="k",
                    facecolors=traj_colors[i], zorder=6, alpha=0.9)
         ax.scatter(t[-1, 0], t[-1, 1], s=20, marker="s", edgecolors="k",
                    facecolors=traj_colors[i], zorder=6, alpha=0.9)
 
-    # Highlight points
     if highlight_points:
         for j, p in enumerate(highlight_points[:2]):
             ax.scatter(p[0], p[1], s=70, marker=("D" if j == 0 else "*"),
