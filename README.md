@@ -11,13 +11,14 @@ This project and its original source code are licensed under the MIT License - s
 If you use this framework, code, or the PING/PING+ methodology in your research, we ask that you fulfill your academic obligation by citing the following paper:
 
 bibtex
-@inproceedings{Jahani-nasab2026,
-    author = {Jahani-nasab, Mahyar and Rezatofighi, Hamid and Vered, Mor and Say, Buser},
-    title = {{PING}: A Physics‑Informed Neuro‑Symbolic Generator for Continuous‑Time Planning},
-    booktitle = {Proceedings of the Thirty-Sixth International Conference on Automated Planning and Scheduling {(ICAPS-2026)}},
-    year = {2026},
-    pages = {},
-    url_paper = {https://icaps26.icaps-conference.org/}
+@inproceedings{jahani2026ping,
+  title={PING: A Physics-Informed Neuro-Symbolic Generator for Continuous-Time Planning},
+  author={Jahani-nasab, Mahyar and Rezatofighi, Hamid and Vered, Mor and Say, Buser},
+  booktitle={Proceedings of the International Conference on Automated Planning and Scheduling},
+  volume={36},
+  number={1},
+  pages={113--122},
+  year={2026}
 }
 ```
 ## Key Features
